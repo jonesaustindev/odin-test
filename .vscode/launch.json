@@ -12,7 +12,7 @@
       "program": "${workspaceRoot}/out/debug/${fileDirnameBasename}.exe",
       "args": [],
       "stopAtEntry": false,
-      "cwd": "${workspaceRoot}/out/debug",
+      "cwd": "${workspaceRoot}",
       "environment": [],
       "console": "internalConsole",
       "internalConsoleOptions": "openOnSessionStart"
@@ -25,7 +25,7 @@
       "program": "${workspaceRoot}/out/release/${fileDirnameBasename}.exe",
       "args": [],
       "stopAtEntry": false,
-      "cwd": "${workspaceRoot}/out/release",
+      "cwd": "${workspaceRoot}",
       "environment": [],
       "console": "internalConsole",
       "internalConsoleOptions": "openOnSessionStart"

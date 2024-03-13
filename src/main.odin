@@ -9,8 +9,13 @@ main :: proc() {
 	player_pos := rl.Vector2{640, 320}
 	player_vel: rl.Vector2
 	player_grounded: bool
+	player_flip: bool
+	player_idle := true
 	player_run_texture := rl.LoadTexture("assets/cat_run.png")
 	player_run_num_frames := 4
+	player_run_frame_timer: f32
+	player_run_current_frame: int
+	player_run_frame_length := f32(0.1)
 
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()
@@ -18,10 +23,17 @@ main :: proc() {
 
 		if rl.IsKeyDown(.LEFT) || rl.IsKeyDown(.A) {
 			player_vel.x = -400
+			player_flip = true
+			player_idle = false
 		} else if rl.IsKeyDown(.RIGHT) || rl.IsKeyDown(.D) {
 			player_vel.x = 400
+			player_flip = false
+			player_idle = false
 		} else {
 			player_vel.x = 0
+			if player_grounded {
+				player_idle = true
+			}
 		}
 
 		// apply gravity
@@ -44,22 +56,42 @@ main :: proc() {
 		player_run_width := f32(player_run_texture.width)
 		player_run_height := f32(player_run_texture.height)
 
+		player_run_frame_timer += rl.GetFrameTime()
+
+		for player_run_frame_timer > player_run_frame_length && !player_idle {
+			player_run_current_frame += 1
+			player_run_frame_timer -= player_run_frame_length
+
+			if player_run_current_frame == player_run_num_frames {
+				player_run_current_frame = 0
+			}
+		}
+
+		if player_idle {
+			player_run_current_frame = 0
+		}
+
+		source_width := player_run_width / f32(player_run_num_frames)
+
 		draw_player_source := rl.Rectangle {
-			x      = 0,
+			x      = f32(player_run_current_frame) * source_width,
 			y      = 0,
-			width  = player_run_width / f32(player_run_num_frames),
+			width  = source_width,
 			height = player_run_height,
 		}
 
-		draw_player_dest := rl.Rectangle {
-		    x = player_pos.x,
-		    y = player_pos.y,
-		    width = player_run_width * 4 / f32(player_run_num_frames),
-		    height = player_run_height * 4
+		if player_flip {
+			draw_player_source.width = -draw_player_source.width
 		}
 
-		rl.DrawTextureRec(player_run_texture, draw_player_source, player_pos, rl.WHITE)
-		rl.DrawText("Hello, World!", 10, 10, 20, rl.WHITE)
+		draw_player_dest := rl.Rectangle {
+			x      = player_pos.x,
+			y      = player_pos.y,
+			width  = player_run_width * 4 / f32(player_run_num_frames),
+			height = player_run_height * 4,
+		}
+
+		rl.DrawTexturePro(player_run_texture, draw_player_source, draw_player_dest, 0, 0, rl.WHITE)
 
 		rl.EndDrawing()
 	}
